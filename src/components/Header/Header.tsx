@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import React from 'react'
+import "./index.scss";
+import { HeaderWrapper } from './styled'
 
-export const Header:React.FC = () => {
+export const Header: React.FC = () => {
   return (
-    <header>
+    <HeaderWrapper >
       <nav>
         <ul>
           <li>
@@ -17,7 +19,7 @@ export const Header:React.FC = () => {
           </li>
         </ul>
       </nav>
-    </header>
+    </HeaderWrapper>
   );
 }
 

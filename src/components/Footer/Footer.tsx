@@ -1,10 +1,12 @@
 import React from 'react';
+import "./index.scss";
+import { FootWrapper } from './styled';
 
-const Footer:React.FC = () => {
+const Footer: React.FC = () => {
   return (
-    <footer>
-      <h2>footer hello ~</h2>
-    </footer>
+    <FootWrapper>
+      <h2>Foot hello ~</h2>
+    </FootWrapper>
   );
 }
 

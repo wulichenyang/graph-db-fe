@@ -3,7 +3,10 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 import './assets/css/App.css';
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
-import MainWrapper from './components/MainWrapper/MainWrapper'
+import {
+  MainWrapper,
+  AppWrapper
+} from './components/Layout/styled'
 import Home from './views/Home';
 import About from './views/About';
 import Topics from './views/Topics';
@@ -11,7 +14,7 @@ import Topics from './views/Topics';
 const App: React.FC = () => {
   return (
     <Router>
-      <div className="App">
+      <AppWrapper>
         <Header />
 
         <MainWrapper>
@@ -21,7 +24,7 @@ const App: React.FC = () => {
         </MainWrapper>
 
         <Footer />
-      </div>
+      </AppWrapper>
     </Router>
   );
 }
