@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { IGraphViewDataItem } from '../components/GraphView/GraphView'
 import GraphView from '../components/GraphView/GraphView'
-import { MainWrapper } from '../components/Layout/styled'
+// import { MainWrapper } from '../components/Wrappers/styled'
 
 interface IState {
   graphViewData: IGraphViewDataItem[]
@@ -23,12 +23,13 @@ class Home extends Component<{}, IState> {
     const { graphViewData } = this.state
 
     return (
-      <MainWrapper>
-        <h2>Graph Database</h2>
-        <GraphView
-          graphViewData={graphViewData}
-        />
-      </MainWrapper>
+      null
+      // <MainWrapper>
+      //   <h2>Graph Database</h2>
+      //   <GraphView
+      //     graphViewData={graphViewData}
+      //   />
+      // </MainWrapper>
     )
   }
 }

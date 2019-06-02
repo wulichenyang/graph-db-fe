@@ -1,32 +1,97 @@
 import React from 'react';
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import './assets/css/App.css';
-import Header from './components/Header/Header'
-import Footer from './components/Footer/Footer'
+import './assets/css/App.less';
+// import Header from './components/Layout/Header/Header'
+import Footer from './components/Layout/Footer/Footer'
+import SideBar from './components/Layout/SideBar/SideBar';
+import Main from './components/Main/Main';
+import * as themes from './assets/css/themes'
+import { ThemeProvider } from 'styled-components'
+import { ITheme } from './assets/css/themes'
+
 import {
-  MainWrapper,
-  AppWrapper
-} from './components/Layout/styled'
-import Home from './views/Home';
-import About from './views/About';
-import Topics from './views/Topics';
+  StyledWrapper,
+  AppWrapper,
+  StyledApp,
+  StyledBody,
+  StyledMainWrapper,
+} from './styled'
+// import Home from './views/Home';
+// import About from './views/About';
+// import Topics from './views/Topics';
+import ErrorBoundary from './components/Error/ErrorBoundary';
 
-const App: React.FC = () => {
-  return (
-    <Router>
-      <AppWrapper>
-        <Header />
+interface Iprops {
+  // drawer,
+  // cmdchar,
+  // handleNavClick,
+  // activeConnection,
+  // connectionState,
+  theme: string,
+  // errorMessage,
+  // loadExternalScripts,
+  // loadSync,
+  // syncConsent,
+  // browserSyncMetadata,
+  // browserSyncConfig,
+  // browserSyncAuthStatus,
+  // experimentalFeatures
+}
 
-        <MainWrapper>
-          <Route exact path="/" component={Home} />
-          <Route path="/about" component={About} />
-          <Route path="/topics" component={Topics} />
-        </MainWrapper>
+interface IState {
 
-        <Footer />
-      </AppWrapper>
-    </Router>
-  );
+}
+
+class App extends React.Component<Iprops, IState> {
+  render() {
+    const {
+      // drawer,
+      // cmdchar,
+      // handleNavClick,
+      // activeConnection,
+      // connectionState,
+      theme,
+      // errorMessage,
+      // loadExternalScripts,
+      // loadSync,
+      // syncConsent,
+      // browserSyncMetadata,
+      // browserSyncConfig,
+      // browserSyncAuthStatus,
+      // experimentalFeatures
+    } = this.props
+
+    const themeData = (themes as ITheme)[theme] || themes['normal']
+
+    return (
+      <Router>
+        <ErrorBoundary>
+          <ThemeProvider theme={themeData}>
+            <AppWrapper> {/* Not used */}
+              <StyledWrapper>
+                {/* DocTitle/UserInteraction/DesktopInteration/... */}
+                {/* <Header /> */}
+                <StyledApp>
+                  <StyledBody>
+                    <ErrorBoundary>
+                      <SideBar />
+                    </ErrorBoundary>
+                  
+                    <StyledMainWrapper>
+                      <Main />
+                    </StyledMainWrapper>
+                  </StyledBody>
+                </StyledApp>
+
+              </StyledWrapper>
+
+              <Footer />
+            </AppWrapper>
+          </ThemeProvider>
+        </ErrorBoundary>
+      </Router>
+    );
+  }
 }
 
 

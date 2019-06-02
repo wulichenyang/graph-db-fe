@@ -8,7 +8,7 @@ interface IProps {
   graphViewData: IGraphViewDataItem[]
 }
 
-const GraphView :React.FC<IProps> = (props) => {
+const GraphView :React.FC<IProps> = (props: IProps) => {
 
   const { graphViewData } = props
 
