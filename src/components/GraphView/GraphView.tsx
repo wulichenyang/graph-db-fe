@@ -1,4 +1,4 @@
-import "./index.scss";
+import "./index.less";
 import { GraphViewWrapper } from './styled';
 import React from 'react'
 

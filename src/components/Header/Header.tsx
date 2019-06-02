@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React from 'react'
-import "./index.scss";
+import "./index.less";
 import { HeaderWrapper } from './styled'
 
 export const Header: React.FC = () => {
