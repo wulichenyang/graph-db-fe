@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { IGraphViewDataItem } from '../components/GraphView/GraphView'
+import { IGraphViewData } from '../components/GraphView/types'
 import GraphView from '../components/GraphView/GraphView'
 // import { MainWrapper } from '../components/Wrappers/styled'
 
 interface IState {
-  graphViewData: IGraphViewDataItem[]
+  graphViewData: IGraphViewData
 }
 
 class Home extends Component<{}, IState> {
@@ -12,7 +12,10 @@ class Home extends Component<{}, IState> {
   //   super(props)
   // }
   readonly state: IState = {
-    graphViewData: []
+    graphViewData: {
+      nodes: [],
+      links: []
+    }
   }
   componentDidMount() {
     this.setState({
