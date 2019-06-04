@@ -3,6 +3,10 @@ import { GraphViewWrapper } from './styled';
 import React from 'react'
 import * as d3 from "d3";
 import {drag as d3Drag} from 'd3-drag';
+import {
+  event as d3Event,
+  select as d3Select
+} from 'd3-selection';
 
 import {
   Node,
@@ -29,7 +33,7 @@ class GraphView extends React.Component<IProps, {}> {
     console.log(1, graphViewData)
     let colors: any = d3.scaleOrdinal(d3.schemeCategory10);
 
-    let svg: D3dom = d3.select("svg")
+    let svg: D3dom = d3Select("svg")
     let width: number = +svg.attr("width"),
       height: number = +svg.attr("height"),
       node: D3dom,
@@ -38,7 +42,7 @@ class GraphView extends React.Component<IProps, {}> {
     let edgePaths: D3dom,
       edgeLabels: D3dom
       
-    d3.select("svg").append('defs').append('marker')
+    d3Select("svg").append('defs').append('marker')
       .attr('id', 'arrowhead')
       .attr('viewBox', '-0 -5 10 10')
       .attr('refX', 13)
@@ -156,18 +160,18 @@ class GraphView extends React.Component<IProps, {}> {
     }
 
     const dragstarted = (d: Node) => {
-      if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+      if (!d3Event.active) simulation.alphaTarget(0.3).restart()
       d.fx = d.x;
       d.fy = d.y;
     }
 
     const dragged = (d: Node) => {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
+      d.fx = d3Event.x;
+      d.fy = d3Event.y;
     }
 
     const dragended = (d: Node) => {
-      if (!d3.event.active) simulation.alphaTarget(0);
+      if (!d3Event.active) simulation.alphaTarget(0);
       d.fx = undefined;
       d.fy = undefined;
     }
