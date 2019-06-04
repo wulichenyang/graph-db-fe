@@ -8,6 +8,22 @@ import {select as d3Select} from 'd3-selection';
 
 ## Technology Stack
 React.js/Redux/TypeScript/styled-components/Axios/Mock.js/d3.js(version 4)
+## 服务端返回的格式定义这样一个数据结构
+
+```
+{
+  data: {
+    totalCount: 100,
+    currentPage: 1,
+    pageSize: 10,
+    'list': [
+    ],
+  },
+  msg: '',
+  code: 0/1 (0 -> success / 1 -> error)
+}
+
+```
 
 ## Available Scripts
 

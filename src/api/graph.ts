@@ -1,10 +1,10 @@
-// import {
-//   get,
-// } from "./http"
+import {
+  get,
+} from "./http"
 
-// export const getBanner = async (): Promise<any> => {
-//   return get('/banner')
-// }
+export const getGraphViewData = async (): Promise<any> => {
+  return get('/graph')
+}
 
 // export const getSongDetail = async (id: number): Promise<any> => {
 //   return get(`/song/detail?ids=${id}`)

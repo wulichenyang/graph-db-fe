@@ -1,6 +1,9 @@
 import React from 'react';
 import { IGraphViewData } from '../../components/GraphView/types'
 import GraphView from '../../components/GraphView/GraphView'
+import {
+  getGraphViewData
+} from '../../api/graph'
 
 interface Iprops {
 
@@ -16,11 +19,16 @@ class Main extends React.Component<Iprops, IState> {
   // }
   readonly state: IState = {
     graphViewData: {
-      nodes:[],
-      links:[]
+      nodes: [],
+      links: []
     }
   }
-  componentDidMount() {
+  
+  async componentDidMount() {
+    const res: Ajax.AxiosResponse = await getGraphViewData()
+    if(res.code === 0) {
+      console.log(res)
+    }
     this.setState({
       graphViewData: {
         nodes: [
@@ -75,7 +83,6 @@ class Main extends React.Component<Iprops, IState> {
     const { graphViewData } = this.state
     return (
       <>
-        <h2>Graph Database</h2>
         <GraphView
           graphViewData={graphViewData}
           graphWidth={960}

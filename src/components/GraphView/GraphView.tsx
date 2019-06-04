@@ -30,7 +30,6 @@ class GraphView extends React.Component<IProps, {}> {
   };
 
   componentWillReceiveProps({ graphViewData }: IProps) {
-    console.log(1, graphViewData)
     let colors: any = d3.scaleOrdinal(d3.schemeCategory10);
 
     let svg: D3dom = d3Select("svg")
