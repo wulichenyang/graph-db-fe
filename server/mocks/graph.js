@@ -16,14 +16,14 @@ const getGraphMock = () => {
           ]
         }],
         'links|200': [{
+          'id|+1': 0,
           'source|0-199': 1,
           'target|0-199': 1,
           'type|1': [
             'LOVE',
             'HATE',
+            'TEACHER_OF',
             'FRIEND_OF',
-            'FATHER_OF',
-            'MATHER_OF'
           ]
       }]
   })

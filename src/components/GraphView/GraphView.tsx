@@ -2,7 +2,7 @@ import "./index.less";
 import { GraphViewWrapper } from './styled';
 import React from 'react'
 import * as d3 from "d3";
-import {drag as d3Drag} from 'd3-drag';
+import { drag as d3Drag } from 'd3-drag';
 import {
   event as d3Event,
   select as d3Select
@@ -38,11 +38,11 @@ class GraphView extends React.Component<IProps, {}> {
       node: D3dom,
       link: D3dom
 
-    let edgePaths: D3dom,
-      edgeLabels: D3dom
-      
+    let relType: D3dom,
+      relTextPath: D3dom
+    // Define Arrow
     d3Select("svg").append('defs').append('marker')
-      .attr('id', 'arrowhead')
+      .attr('id', 'arrow-head')
       .attr('viewBox', '-0 -5 10 10')
       .attr('refX', 13)
       .attr('refY', 0)
@@ -51,56 +51,60 @@ class GraphView extends React.Component<IProps, {}> {
       .attr('markerHeight', 13)
       .attr('xoverflow', 'visible')
 
-      .append('svg:path')
+      .append('path')
       .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
       .attr('fill', '#999')
       .style('stroke', 'none');
 
     let simulation = d3.forceSimulation()
-      // ?????? d: Node????
-      .force("link", d3.forceLink().id(function (d: Node) { return d.id; }).distance(100).strength(1))
+      .force("link", d3.forceLink().id(function (d: Relationship) { return d.id; }).distance(100).strength(1))
       .force("charge", d3.forceManyBody())
       .force("center", d3.forceCenter(width / 2, height / 2));
 
     const update = (links: Relationship[], nodes: Node[]) => {
-      link = svg.selectAll(".link")
+      // Relationship
+      let linkGroup = svg.append("g").attr("class", "links")
+        .selectAll(".link")
         .data(links)
         .enter()
-        .append("line")
+        .append("g")
         .attr("class", "link")
-        .attr('marker-end', 'url(#arrowhead)')
+      // Title
+      linkGroup.append("title")
+        .text(function (d: Relationship) { return `Rel-[${d.type}]->`; });
 
-      link.append("title")
-        .text(function (d: Relationship) { return d.type; });
+      // Relationship line with the arrow
+      link = linkGroup.append("line")
+        // .attr("class", "link")
+        .attr('marker-end', 'url(#arrow-head)')
 
-      edgePaths = svg.selectAll(".edge-path")
-        .data(links)
-        .enter()
-        .append('path')
-        .attr('class', 'edge-path')
-        .attr('fill-opacity', 0)
-        .attr('stroke-opacity', 0)
-        .attr('id', function (d: Relationship, i: number) { return 'edge-path' + i })
+      // Hidden virtual relationship lines for text direction
+      // The textPath uses xlink:href:#rel-type-path to bind the virtual relationship line.
+      relTextPath = linkGroup.append("path")
+        .attr('class', 'rel-type-path')
+        .attr('fill-opacity', '0')
+        .attr('stroke-opacity', '0')
+        .attr('id', function (d: Relationship, i: number) { return 'rel-type-path' + i })
         .style("pointer-events", "none");
 
-      edgeLabels = svg.selectAll(".edge-label")
-        .data(links)
-        .enter()
-        .append('text')
+      // Text of relationship type
+      relType = linkGroup.append("text")
         .style("pointer-events", "none")
-        .attr('class', 'edge-label',)
-        .attr('id', function (d: Relationship, i: number) { return 'edge-label' + i },)
-        .attr('font-size', 10,)
+        .attr('class', 'rel-type')
+        .attr('id', function (d: Relationship, i: number) { return 'rel-type' + i })
+        .attr('font-size', 10)
         .attr('fill', '#aaa');
-
-      edgeLabels.append('textPath')
-        .attr('xlink:href', function (d: Relationship, i: number) { return '#edge-path' + i })
+      // Virtual path of relationship type(Bind textPath direction to the relTextPath)
+      relType.append('textPath')
+        .attr('xlink:href', function (d: Relationship, i: number) { return '#rel-type-path' + i })
         .style("text-anchor", "middle")
         .style("pointer-events", "none")
         .attr("startOffset", "50%")
         .text(function (d: Relationship) { return d.type });
 
-      node = svg.selectAll(".node")
+      // Node
+      node = svg.append("g").attr("class", "nodes")
+        .selectAll(".node")
         .data(nodes)
         .enter()
         .append("g")
@@ -111,12 +115,12 @@ class GraphView extends React.Component<IProps, {}> {
           .on("end", dragended)
         );
 
+      node.append("title")
+        .text(function (d: Node) { return `(node)-${d.id}`; });
+
       node.append("circle")
         .attr("r", 5)
         .style("fill", function (d: Node, i: number) { return colors(i); })
-
-      node.append("title")
-        .text(function (d: Node) { return d.id; });
 
       node.append("text")
         .attr("dy", -3)
@@ -131,20 +135,23 @@ class GraphView extends React.Component<IProps, {}> {
     }
 
     const ticked = () => {
+      // Relocate links
       link
         .attr("x1", function (d: Relationship) { return (d.source as Node).x; })
         .attr("y1", function (d: Relationship) { return (d.source as Node).y; })
         .attr("x2", function (d: Relationship) { return (d.target as Node).x; })
         .attr("y2", function (d: Relationship) { return (d.target as Node).y; });
 
+      // Relocate nodes
       node
         .attr("transform", function (d: Node) { return "translate(" + d.x + ", " + d.y + ")"; });
 
-      edgePaths.attr('d', function (d: Relationship) {
+      // Relocate virtual lines that the text based on
+      relTextPath.attr('d', function (d: Relationship) {
         return 'M ' + (d.source as Node).x + ' ' + (d.source as Node).y + ' L ' + (d.target as Node).x + ' ' + (d.target as Node).y;
       });
 
-      edgeLabels.attr('transform', function (this: D3dom, d: Relationship) {
+      relType.attr('transform', function (this: D3dom, d: Relationship) {
         if ((d.target as any).x < (d.source as any).x) {
           let bbox = (this).getBBox();
 
