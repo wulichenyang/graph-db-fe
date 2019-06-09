@@ -33,7 +33,7 @@ export interface Relationship {
 
 export interface IGraphViewData {
   nodes: Node[],
-  links: Relationship[],
+  relationships: Relationship[],
 }
 
 export interface D3dom {

@@ -15,7 +15,7 @@ const getGraphMock = () => {
             'Bitch'
           ]
         }],
-        'links|200': [{
+        'relationships|200': [{
           'id|+1': 0,
           'source|0-199': 1,
           'target|0-199': 1,

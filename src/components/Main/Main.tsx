@@ -20,7 +20,7 @@ class Main extends React.Component<Iprops, IState> {
   readonly state: IState = {
     graphViewData: {
       nodes: [],
-      links: []
+      relationships: []
     }
   }
   
@@ -29,7 +29,10 @@ class Main extends React.Component<Iprops, IState> {
     if(res && res.code === 0) {
       // console.log(res)
       this.setState({
-        graphViewData: res.data
+        graphViewData: {
+          nodes: res.data.nodes,
+          relationships: res.data.relationships
+        }
       })
     }
   }
@@ -38,7 +41,8 @@ class Main extends React.Component<Iprops, IState> {
     return (
       <>
         <GraphView
-          graphViewData={graphViewData}
+          nodes={graphViewData.nodes}
+          relationships={graphViewData.relationships}
           graphWidth={960}
           graphHeight={600}
         />

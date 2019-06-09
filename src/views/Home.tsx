@@ -14,7 +14,7 @@ class Home extends Component<{}, IState> {
   readonly state: IState = {
     graphViewData: {
       nodes: [],
-      links: []
+      relationships: []
     }
   }
   componentDidMount() {

@@ -16,7 +16,9 @@ import {
 } from './types'
 
 interface IProps {
-  graphViewData: IGraphViewData
+  // graphViewData: IGraphViewData
+  nodes: Node[],
+  relationships: Relationship[],
   graphWidth: number,
   graphHeight: number,
 }
@@ -24,12 +26,13 @@ interface IProps {
 class GraphView extends React.Component<IProps, {}> {
 
   static defaultProps = {
-    graphViewData: {},
+    nodes: [],
+    relationships: [],
     graphWidth: 960,
     graphHeight: 400,
   };
 
-  componentWillReceiveProps({ graphViewData }: IProps) {
+  componentWillReceiveProps({ nodes, relationships }: IProps) {
     let colors: any = d3.scaleOrdinal(d3.schemeCategory10);
 
     let svg: D3dom = d3Select("svg")
@@ -112,14 +115,14 @@ class GraphView extends React.Component<IProps, {}> {
         .call(d3Drag()
           .on("start", dragstarted)
           .on("drag", dragged)
-          .on("end", dragended)
+          .on("end", dragended) // TODO refresh position
         );
 
       node.append("title")
         .text(function (d: Node) { return `(node)-${d.id}`; });
 
       node.append("circle")
-        .attr("r", 5)
+        .attr("r", 10)
         .style("fill", function (d: Node, i: number) { return colors(i); })
 
       node.append("text")
@@ -128,13 +131,15 @@ class GraphView extends React.Component<IProps, {}> {
 
       simulation
         .nodes(nodes)
-        .on("tick", ticked);
-
+        .on("tick", ticked)
+        .on("end", updatePosition)
       simulation.force("link")
         .links(links);
     }
 
     const ticked = () => {
+      // // Render it when the graph is stable enough
+      // if (simulation.alpha() <= 0.05) {
       // Relocate links
       link
         .attr("x1", function (d: Relationship) { return (d.source as Node).x; })
@@ -163,6 +168,40 @@ class GraphView extends React.Component<IProps, {}> {
           return 'rotate(0)';
         }
       });
+      // // Stop rendering
+      // simulation.stop()
+      // }
+    }
+
+    const updatePosition = () => {
+      let max = { x: 0, y: 0 },
+        min = { x: 0, y: 0 }
+      // Stop rendering
+      simulation.stop()
+      if (nodes.length > 0) {
+        // Store positions of min and max nodes
+        nodes.forEach((node: Node) => {
+          if ((node as any).x > max.x) {
+            max.x = (node.x) as number
+          }
+          if ((node as any).y > max.y) {
+            max.y = (node.y) as number
+          }
+          if ((node as any).x < min.x) {
+            min.x = (node.x) as number
+          }
+          if ((node as any).y < min.y) {
+            min.y = (node.y) as number
+          }
+        })
+        // Set total size of SVG
+        let width = max.x - min.x
+        let height = max.y - min.y
+        // svg.attr("width", width)
+        // svg.attr("height", height)
+        // Set visual size of SVG
+        svg.attr('viewBox', `${min.x},${min.y},${width},${height}`)
+      }
     }
 
     const dragstarted = (d: Node) => {
@@ -187,7 +226,7 @@ class GraphView extends React.Component<IProps, {}> {
     //   update(graph.links, graph.nodes);
     // })
 
-    update(graphViewData.links, graphViewData.nodes)
+    update(relationships, nodes)
   }
   render() {
     const { graphWidth, graphHeight } = this.props
