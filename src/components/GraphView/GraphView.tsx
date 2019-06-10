@@ -44,30 +44,34 @@ class GraphView extends React.Component<IProps, {}> {
     const svgdragstarted = (d: D3dom) => {
       d3Event.sourceEvent.stopPropagation();
       d3Event.sourceEvent.preventDefault();
-      console.log("start")
+      // console.log("start")
+
+      // Stop rendering
+      simulation.stop()
     }
     const svgdragged = (d: D3dom) => {
-      console.log(draggableSvg.attr("transform"))
+      // console.log(draggableSvg.attr("transform"))
       var t = getTranslation(draggableSvg.attr("transform"));
-      console.log(t)
+      // console.log(t)
       draggableSvg.attr("transform", "translate(" + [t[0] + d3Event.dx, t[1] + d3Event.dy] + ")")
-      console.log("drag: " + getTranslation(draggableSvg.attr("transform")));
+      // console.log("drag: " + getTranslation(draggableSvg.attr("transform")));
     }
     const svgdragended = (d: D3dom) => {
-      console.log("end")
+      // console.log("end")
+
     }
     let colors: any = d3.scaleOrdinal(d3.schemeCategory10);
     let svg: D3dom = d3Select("svg")
-    .attr("class", "graph-view-svg")
-    .attr("overflow", "hidden")
-    .call(d3Drag()
-    .on("start", svgdragstarted)
-    .on("drag", svgdragged)
-    .on("end", svgdragended)
-    )
+      .attr("class", "graph-view-svg")
+      .attr("overflow", "hidden")
+      .call(d3Drag()
+        .on("start", svgdragstarted)
+        .on("drag", svgdragged)
+        .on("end", svgdragended)
+      )
     let draggableSvg = svg.append("g")
-    .attr("class", "draggable-svg")
-    .attr("transform", "translate(0,0)")
+      .attr("class", "draggable-svg")
+      .attr("transform", "translate(0,0)")
 
     let width: number = +svg.attr("width"),
       height: number = +svg.attr("height"),
@@ -172,38 +176,39 @@ class GraphView extends React.Component<IProps, {}> {
 
     const ticked = () => {
       // // Render it when the graph is stable enough
-      // if (simulation.alpha() <= 0.05) {
-      // Relocate links
-      link
+      if (simulation.alpha() <= 0.05) {
+        // Relocate links
+        link
         .attr("x1", function (d: Relationship) { return (d.source as Node).x; })
         .attr("y1", function (d: Relationship) { return (d.source as Node).y; })
         .attr("x2", function (d: Relationship) { return (d.target as Node).x; })
         .attr("y2", function (d: Relationship) { return (d.target as Node).y; });
-
-      // Relocate nodes
-      node
+        
+        // Relocate nodes
+        node
         .attr("transform", function (d: Node) { return "translate(" + d.x + ", " + d.y + ")"; });
-
-      // Relocate virtual lines that the text based on
-      relTextPath.attr('d', function (d: Relationship) {
-        return 'M ' + (d.source as Node).x + ' ' + (d.source as Node).y + ' L ' + (d.target as Node).x + ' ' + (d.target as Node).y;
-      });
-
-      relType.attr('transform', function (this: D3dom, d: Relationship) {
-        if ((d.target as any).x < (d.source as any).x) {
-          let bbox = (this).getBBox();
-
-          let rx = bbox.x + bbox.width / 2;
-          let ry = bbox.y + bbox.height / 2;
-          return 'rotate(180 ' + rx + ' ' + ry + ')';
-        }
-        else {
-          return 'rotate(0)';
-        }
-      });
-      // // Stop rendering
-      // simulation.stop()
-      // }
+        
+        // Relocate virtual lines that the text based on
+        relTextPath.attr('d', function (d: Relationship) {
+          return 'M ' + (d.source as Node).x + ' ' + (d.source as Node).y + ' L ' + (d.target as Node).x + ' ' + (d.target as Node).y;
+        });
+        
+        relType.attr('transform', function (this: D3dom, d: Relationship) {
+          if ((d.target as any).x < (d.source as any).x) {
+            let bbox = (this).getBBox();
+            
+            let rx = bbox.x + bbox.width / 2;
+            let ry = bbox.y + bbox.height / 2;
+            return 'rotate(180 ' + rx + ' ' + ry + ')';
+          }
+          else {
+            return 'rotate(0)';
+          }
+        });
+        console.timeEnd('x');
+        // // Stop rendering
+        // simulation.stop()
+      }
     }
 
     const updatePosition = () => {
@@ -261,9 +266,12 @@ class GraphView extends React.Component<IProps, {}> {
 
     update(relationships, nodes)
   }
+
   componentWillReceiveProps({ nodes, relationships }: IProps) {
+    console.time('x')
     this.initGraph(nodes, relationships)
   }
+
   render() {
     const { graphWidth, graphHeight } = this.props
 
