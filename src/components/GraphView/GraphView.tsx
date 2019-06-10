@@ -7,6 +7,7 @@ import {
   event as d3Event,
   select as d3Select
 } from 'd3-selection';
+import { getTranslation } from '../../utils/d3-transform'
 
 import {
   Node,
@@ -22,6 +23,9 @@ interface IProps {
   graphWidth: number,
   graphHeight: number,
 }
+// interface IState {
+//   svg: D3dom,
+// };
 
 class GraphView extends React.Component<IProps, {}> {
 
@@ -29,13 +33,42 @@ class GraphView extends React.Component<IProps, {}> {
     nodes: [],
     relationships: [],
     graphWidth: 960,
-    graphHeight: 400,
+    graphHeight: 600,
   };
+  // readonly state: IState = {
+  //   svg: {},
+  // };
 
-  componentWillReceiveProps({ nodes, relationships }: IProps) {
+  initGraph = (nodes: Node[], relationships: Relationship[]) => {
+    // Listen to dragging of the SVG
+    const svgdragstarted = (d: D3dom) => {
+      d3Event.sourceEvent.stopPropagation();
+      d3Event.sourceEvent.preventDefault();
+      console.log("start")
+    }
+    const svgdragged = (d: D3dom) => {
+      console.log(draggableSvg.attr("transform"))
+      var t = getTranslation(draggableSvg.attr("transform"));
+      console.log(t)
+      draggableSvg.attr("transform", "translate(" + [t[0] + d3Event.dx, t[1] + d3Event.dy] + ")")
+      console.log("drag: " + getTranslation(draggableSvg.attr("transform")));
+    }
+    const svgdragended = (d: D3dom) => {
+      console.log("end")
+    }
     let colors: any = d3.scaleOrdinal(d3.schemeCategory10);
-
     let svg: D3dom = d3Select("svg")
+    .attr("class", "graph-view-svg")
+    .attr("overflow", "hidden")
+    .call(d3Drag()
+    .on("start", svgdragstarted)
+    .on("drag", svgdragged)
+    .on("end", svgdragended)
+    )
+    let draggableSvg = svg.append("g")
+    .attr("class", "draggable-svg")
+    .attr("transform", "translate(0,0)")
+
     let width: number = +svg.attr("width"),
       height: number = +svg.attr("height"),
       node: D3dom,
@@ -44,7 +77,7 @@ class GraphView extends React.Component<IProps, {}> {
     let relType: D3dom,
       relTextPath: D3dom
     // Define Arrow
-    d3Select("svg").append('defs').append('marker')
+    draggableSvg.append('defs').append('marker')
       .attr('id', 'arrow-head')
       .attr('viewBox', '-0 -5 10 10')
       .attr('refX', 13)
@@ -60,13 +93,13 @@ class GraphView extends React.Component<IProps, {}> {
       .style('stroke', 'none');
 
     let simulation = d3.forceSimulation()
-      .force("link", d3.forceLink().id(function (d: Relationship) { return d.id; }).distance(100).strength(1))
+      .force("link", d3.forceLink().id(function (d: Relationship) { return d.id; }).distance(200).strength(1))
       .force("charge", d3.forceManyBody())
       .force("center", d3.forceCenter(width / 2, height / 2));
 
     const update = (links: Relationship[], nodes: Node[]) => {
       // Relationship
-      let linkGroup = svg.append("g").attr("class", "links")
+      let linkGroup = draggableSvg.append("g").attr("class", "links")
         .selectAll(".link")
         .data(links)
         .enter()
@@ -106,7 +139,7 @@ class GraphView extends React.Component<IProps, {}> {
         .text(function (d: Relationship) { return d.type });
 
       // Node
-      node = svg.append("g").attr("class", "nodes")
+      node = draggableSvg.append("g").attr("class", "nodes")
         .selectAll(".node")
         .data(nodes)
         .enter()
@@ -174,34 +207,34 @@ class GraphView extends React.Component<IProps, {}> {
     }
 
     const updatePosition = () => {
-      let max = { x: 0, y: 0 },
-        min = { x: 0, y: 0 }
-      // Stop rendering
-      simulation.stop()
-      if (nodes.length > 0) {
-        // Store positions of min and max nodes
-        nodes.forEach((node: Node) => {
-          if ((node as any).x > max.x) {
-            max.x = (node.x) as number
-          }
-          if ((node as any).y > max.y) {
-            max.y = (node.y) as number
-          }
-          if ((node as any).x < min.x) {
-            min.x = (node.x) as number
-          }
-          if ((node as any).y < min.y) {
-            min.y = (node.y) as number
-          }
-        })
-        // Set total size of SVG
-        let width = max.x - min.x
-        let height = max.y - min.y
-        // svg.attr("width", width)
-        // svg.attr("height", height)
-        // Set visual size of SVG
-        svg.attr('viewBox', `${min.x},${min.y},${width},${height}`)
-      }
+      // let max = { x: 0, y: 0 },
+      //   min = { x: 0, y: 0 }
+      // // Stop rendering
+      // simulation.stop()
+      // if (nodes.length > 0) {
+      //   // Store positions of min and max nodes
+      //   nodes.forEach((node: Node) => {
+      //     if ((node as any).x > max.x) {
+      //       max.x = (node.x) as number
+      //     }
+      //     if ((node as any).y > max.y) {
+      //       max.y = (node.y) as number
+      //     }
+      //     if ((node as any).x < min.x) {
+      //       min.x = (node.x) as number
+      //     }
+      //     if ((node as any).y < min.y) {
+      //       min.y = (node.y) as number
+      //     }
+      //   })
+      //   // Set total size of SVG
+      //   let width = max.x - min.x
+      //   let height = max.y - min.y
+      //   svg.attr("width", width)
+      //   svg.attr("height", height)
+      //   // Set visual size of SVG
+      //   svg.attr('viewBox', `${min.x},${min.y},${width},${height}`)
+      // }
     }
 
     const dragstarted = (d: Node) => {
@@ -227,6 +260,9 @@ class GraphView extends React.Component<IProps, {}> {
     // })
 
     update(relationships, nodes)
+  }
+  componentWillReceiveProps({ nodes, relationships }: IProps) {
+    this.initGraph(nodes, relationships)
   }
   render() {
     const { graphWidth, graphHeight } = this.props

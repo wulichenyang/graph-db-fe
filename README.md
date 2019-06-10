@@ -6,6 +6,10 @@ import {zoom as d3Zoom} from 'd3-zoom';
 import {drag as d3Drag} from 'd3-drag';
 import {select as d3Select} from 'd3-selection';
 
+import {getTranslation} from utils/d3-transform
+d3.transform(transformString).translate ->
+getTranslation(transformString);
+
 ## Technology Stack
 React.js/Redux/TypeScript/styled-components/Axios/Mock.js/d3.js(version 4)
 ## 服务端返回的格式定义这样一个数据结构
@@ -19,7 +23,7 @@ React.js/Redux/TypeScript/styled-components/Axios/Mock.js/d3.js(version 4)
     'list': [
     ],
   },
-  msg: '',
+  message: '',
   code: 0/1 (0 -> success / 1 -> error)
 }
 
