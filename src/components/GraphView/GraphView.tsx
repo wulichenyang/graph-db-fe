@@ -85,10 +85,9 @@ class GraphView extends React.Component<IProps, {}> {
     // Declare a force-directed graph simulation
     let simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id(function (d: Relationship) { return d.id; }).distance(200).strength(1))
-      .force("charge", d3.forceManyBody())
+      .force("charge", d3.forceManyBody().strength(-100)) // ???
       .force("center", d3.forceCenter(width / 2, height / 2))
     // .alphaDecay(.7)
-
     const update = (links: Relationship[], nodes: Node[]) => {
       // Define Arrow
       draggableSvg.append('defs').append('marker')
@@ -164,7 +163,7 @@ class GraphView extends React.Component<IProps, {}> {
       node.append("circle")
         .attr("r", 10)
         .style("fill", function (d: Node, i: number) { return colors(i % 6); })
-        .style("stroke", function(d: Node, i: number) { return d3.rgb(colors(i % 6)).darker(2); })
+        .style("stroke", function (d: Node, i: number) { return d3.rgb(colors(i % 6)).darker(2); })
 
       node.append("text")
         .attr("dy", -3)
@@ -177,7 +176,7 @@ class GraphView extends React.Component<IProps, {}> {
         .on("end", updatePosition)
       simulation.force("link")
         .links(links);
-      
+
       // Transition
       svg.style("opacity", 1e-6)
         .transition()
@@ -188,37 +187,37 @@ class GraphView extends React.Component<IProps, {}> {
     const ticked = () => {
       // // Render it when the graph is stable enough
       // if (simulation.alpha() <= 0.05) {
-        // Relocate links
-        link
-          .attr("x1", function (d: Relationship) { return (d.source as Node).x; })
-          .attr("y1", function (d: Relationship) { return (d.source as Node).y; })
-          .attr("x2", function (d: Relationship) { return (d.target as Node).x; })
-          .attr("y2", function (d: Relationship) { return (d.target as Node).y; });
+      // Relocate links
+      link
+        .attr("x1", function (d: Relationship) { return (d.source as Node).x; })
+        .attr("y1", function (d: Relationship) { return (d.source as Node).y; })
+        .attr("x2", function (d: Relationship) { return (d.target as Node).x; })
+        .attr("y2", function (d: Relationship) { return (d.target as Node).y; });
 
-        // Relocate nodes
-        node
-          .attr("transform", function (d: Node) { return "translate(" + d.x + ", " + d.y + ")"; });
+      // Relocate nodes
+      node
+        .attr("transform", function (d: Node) { return "translate(" + d.x + ", " + d.y + ")"; });
 
-        // Relocate virtual lines that the text based on
-        relTextPath.attr('d', function (d: Relationship) {
-          return 'M ' + (d.source as Node).x + ' ' + (d.source as Node).y + ' L ' + (d.target as Node).x + ' ' + (d.target as Node).y;
-        });
+      // Relocate virtual lines that the text based on
+      relTextPath.attr('d', function (d: Relationship) {
+        return 'M ' + (d.source as Node).x + ' ' + (d.source as Node).y + ' L ' + (d.target as Node).x + ' ' + (d.target as Node).y;
+      });
 
-        relType.attr('transform', function (this: D3dom, d: Relationship) {
-          if ((d.target as any).x < (d.source as any).x) {
-            let bbox = (this).getBBox();
+      relType.attr('transform', function (this: D3dom, d: Relationship) {
+        if ((d.target as any).x < (d.source as any).x) {
+          let bbox = (this).getBBox();
 
-            let rx = bbox.x + bbox.width / 2;
-            let ry = bbox.y + bbox.height / 2;
-            return 'rotate(180 ' + rx + ' ' + ry + ')';
-          }
-          else {
-            return 'rotate(0)';
-          }
-        });
-        // console.timeEnd('x');
-        // // Stop rendering
-        // simulation.stop()
+          let rx = bbox.x + bbox.width / 2;
+          let ry = bbox.y + bbox.height / 2;
+          return 'rotate(180 ' + rx + ' ' + ry + ')';
+        }
+        else {
+          return 'rotate(0)';
+        }
+      });
+      // console.timeEnd('x');
+      // // Stop rendering
+      // simulation.stop()
       // }
     }
 
