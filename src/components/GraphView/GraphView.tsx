@@ -61,6 +61,7 @@ class GraphView extends React.Component<IProps, {}> {
 
     }
     let colors: any = d3.scaleOrdinal(d3.schemeCategory10);
+
     let svg: D3dom = d3Select("svg")
       .attr("class", "graph-view-svg")
       .attr("overflow", "hidden")
@@ -80,28 +81,30 @@ class GraphView extends React.Component<IProps, {}> {
 
     let relType: D3dom,
       relTextPath: D3dom
-    // Define Arrow
-    draggableSvg.append('defs').append('marker')
-      .attr('id', 'arrow-head')
-      .attr('viewBox', '-0 -5 10 10')
-      .attr('refX', 13)
-      .attr('refY', 0)
-      .attr('orient', 'auto')
-      .attr('markerWidth', 13)
-      .attr('markerHeight', 13)
-      .attr('xoverflow', 'visible')
 
-      .append('path')
-      .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
-      .attr('fill', '#999')
-      .style('stroke', 'none');
-
+    // Declare a force-directed graph simulation
     let simulation = d3.forceSimulation()
       .force("link", d3.forceLink().id(function (d: Relationship) { return d.id; }).distance(200).strength(1))
       .force("charge", d3.forceManyBody())
-      .force("center", d3.forceCenter(width / 2, height / 2));
+      .force("center", d3.forceCenter(width / 2, height / 2))
+    // .alphaDecay(.7)
 
     const update = (links: Relationship[], nodes: Node[]) => {
+      // Define Arrow
+      draggableSvg.append('defs').append('marker')
+        .attr('id', 'arrow-head')
+        .attr('viewBox', '-0 -5 10 10')
+        .attr('refX', 13)
+        .attr('refY', 0)
+        .attr('orient', 'auto')
+        .attr('markerWidth', 13)
+        .attr('markerHeight', 13)
+        .attr('xoverflow', 'visible')
+
+        .append('path')
+        .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+        .attr('fill', '#999')
+        .style('stroke', 'none');
       // Relationship
       let linkGroup = draggableSvg.append("g").attr("class", "links")
         .selectAll(".link")
@@ -160,43 +163,51 @@ class GraphView extends React.Component<IProps, {}> {
 
       node.append("circle")
         .attr("r", 10)
-        .style("fill", function (d: Node, i: number) { return colors(i); })
+        .style("fill", function (d: Node, i: number) { return colors(i % 6); })
+        .style("stroke", function(d: Node, i: number) { return d3.rgb(colors(i % 6)).darker(2); })
 
       node.append("text")
         .attr("dy", -3)
         .text(function (d: Node) { return d.name + ":" + d.label; });
 
+      // Listen to the change of the location
       simulation
         .nodes(nodes)
         .on("tick", ticked)
         .on("end", updatePosition)
       simulation.force("link")
         .links(links);
+      
+      // Transition
+      svg.style("opacity", 1e-6)
+        .transition()
+        .duration(1000)
+        .style("opacity", 1);
     }
 
     const ticked = () => {
       // // Render it when the graph is stable enough
-      if (simulation.alpha() <= 0.05) {
+      // if (simulation.alpha() <= 0.05) {
         // Relocate links
         link
-        .attr("x1", function (d: Relationship) { return (d.source as Node).x; })
-        .attr("y1", function (d: Relationship) { return (d.source as Node).y; })
-        .attr("x2", function (d: Relationship) { return (d.target as Node).x; })
-        .attr("y2", function (d: Relationship) { return (d.target as Node).y; });
-        
+          .attr("x1", function (d: Relationship) { return (d.source as Node).x; })
+          .attr("y1", function (d: Relationship) { return (d.source as Node).y; })
+          .attr("x2", function (d: Relationship) { return (d.target as Node).x; })
+          .attr("y2", function (d: Relationship) { return (d.target as Node).y; });
+
         // Relocate nodes
         node
-        .attr("transform", function (d: Node) { return "translate(" + d.x + ", " + d.y + ")"; });
-        
+          .attr("transform", function (d: Node) { return "translate(" + d.x + ", " + d.y + ")"; });
+
         // Relocate virtual lines that the text based on
         relTextPath.attr('d', function (d: Relationship) {
           return 'M ' + (d.source as Node).x + ' ' + (d.source as Node).y + ' L ' + (d.target as Node).x + ' ' + (d.target as Node).y;
         });
-        
+
         relType.attr('transform', function (this: D3dom, d: Relationship) {
           if ((d.target as any).x < (d.source as any).x) {
             let bbox = (this).getBBox();
-            
+
             let rx = bbox.x + bbox.width / 2;
             let ry = bbox.y + bbox.height / 2;
             return 'rotate(180 ' + rx + ' ' + ry + ')';
@@ -205,10 +216,10 @@ class GraphView extends React.Component<IProps, {}> {
             return 'rotate(0)';
           }
         });
-        console.timeEnd('x');
+        // console.timeEnd('x');
         // // Stop rendering
         // simulation.stop()
-      }
+      // }
     }
 
     const updatePosition = () => {

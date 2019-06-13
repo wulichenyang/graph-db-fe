@@ -9,7 +9,6 @@ const { getTranslation } = require('../utils/d3-transform')
 
 // Create graphSvg and rendering on server side
 const createGraphSvg = () => {
-  console.time('server');
   const dom = new JSDOM(`<!DOCTYPE html><svg></svg>`); // html file skull with a container svg for the d3 dataviz
   let graphData = getGraphMock()
   initGraph(graphData.nodes, graphData.relationships, dom)
@@ -17,6 +16,7 @@ const createGraphSvg = () => {
 }
 
 const initGraph = (nodes, relationships, dom) => {
+  console.time('server');
   // Listen to dragging of the SVG
   const svgdragstarted = (d) => {
     d3Event.sourceEvent.stopPropagation();
@@ -154,35 +154,37 @@ const initGraph = (nodes, relationships, dom) => {
   const ticked = () => {
     // // Render it when the graph is stable enough
     if (simulation.alpha() <= 0.05) {
-      // Relocate links
-      link
-        .attr("x1", function (d) { return (d.source).x; })
-        .attr("y1", function (d) { return (d.source).y; })
-        .attr("x2", function (d) { return (d.target).x; })
-        .attr("y2", function (d) { return (d.target).y; });
-
-      // Relocate nodes
-      node
-        .attr("transform", function (d) { return "translate(" + d.x + ", " + d.y + ")"; });
-
-      // Relocate virtual lines that the text based on
-      relTextPath.attr('d', function (d) {
-        return 'M ' + (d.source).x + ' ' + (d.source).y + ' L ' + (d.target).x + ' ' + (d.target).y;
-      });
-
-      relType.attr('transform', function (d) {
-        if ((d.target).x < (d.source).x) {
-          let bbox = this.getBBox();
-
-          let rx = bbox.x + bbox.width / 2;
-          let ry = bbox.y + bbox.height / 2;
-          return 'rotate(180 ' + rx + ' ' + ry + ')';
-        }
-        else {
-          return 'rotate(0)';
-        }
-      });
+      // Stop rendering
+      simulation.stop()
       console.timeEnd('server');
+      // // Relocate links
+      // link
+      //   .attr("x1", function (d) { return (d.source).x; })
+      //   .attr("y1", function (d) { return (d.source).y; })
+      //   .attr("x2", function (d) { return (d.target).x; })
+      //   .attr("y2", function (d) { return (d.target).y; });
+
+      // // Relocate nodes
+      // node
+      //   .attr("transform", function (d) { return "translate(" + d.x + ", " + d.y + ")"; });
+
+      // // Relocate virtual lines that the text based on
+      // relTextPath.attr('d', function (d) {
+      //   return 'M ' + (d.source).x + ' ' + (d.source).y + ' L ' + (d.target).x + ' ' + (d.target).y;
+      // });
+
+      // relType.attr('transform', function (d) {
+      //   if ((d.target).x < (d.source).x) {
+      //     let bbox = this.getBBox();
+
+      //     let rx = bbox.x + bbox.width / 2;
+      //     let ry = bbox.y + bbox.height / 2;
+      //     return 'rotate(180 ' + rx + ' ' + ry + ')';
+      //   }
+      //   else {
+      //     return 'rotate(0)';
+      //   }
+      // });
       // // Stop rendering
       // simulation.stop()
     }
