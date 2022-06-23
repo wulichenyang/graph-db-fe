@@ -16,7 +16,7 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
-    "jsdom": "^15.1.1",
+    "jsdom": "^16.5.0",
     "mockjs": "^1.0.1-beta3",
     "morgan": "~1.9.1"
   }
